@@ -136,14 +136,6 @@ public class TransactionImportService : IHostedService
                     $"Account {imported.AccountNumber} " +
                     $"at {imported.Institution} was not found.");
             }
-
-            if (account.Type != AccountType.Checking &&
-                account.Type != AccountType.Savings)
-            {
-                throw new InvalidOperationException(
-                    $"Account {account.AccountName} is not a checking " +
-                    "or savings account.");
-            }
         }
 
         var existingTransactions = await dbContext.Transactions
@@ -170,6 +162,7 @@ public class TransactionImportService : IHostedService
                 Date = imported.Date,
                 CreditDebitIndicator = imported.CreditDebitIndicator,
                 Amount = imported.Amount,
+                RewardCategory = imported.RewardCategory,
                 AccountBalance = imported.AccountBalance
             };
 
@@ -204,6 +197,7 @@ public class TransactionImportService : IHostedService
             transaction.Description,
             transaction.CreditDebitIndicator,
             transaction.Amount,
+            transaction.RewardCategory,
             transaction.AccountBalance);
     }
 
@@ -213,5 +207,6 @@ public class TransactionImportService : IHostedService
         string Description,
         CreditDebitIndicator Indicator,
         long Amount,
+        string? RewardCategory,
         long? AccountBalance);
 }

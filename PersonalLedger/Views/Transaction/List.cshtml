@@ -1,0 +1,106 @@
+
+@model PersonalLedger.ViewModels.TransactionListViewModel
+
+@{
+    ViewData["Title"] = "Transactions";
+}
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Transactions</h2>
+            <p class="text-muted mb-0">
+                @Model.StartDate.ToString("MMM dd, yyyy")
+                -
+                @Model.EndDate.ToString("MMM dd, yyyy")
+            </p>
+        </div>
+
+        <a asp-controller="Transaction"
+           asp-action="Index"
+           class="btn btn-outline-primary">
+            New Search
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Transaction Results</h5>
+                <span class="text-muted">
+                    @Model.Transactions.Count transaction(s)
+                </span>
+            </div>
+
+            @if (Model.Transactions.Count == 0)
+            {
+                <div class="alert alert-info mb-0">
+                    No transactions were found within the selected date range.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Account</th>
+                                <th>Institution</th>
+                                <th>Type</th>
+                                <th class="text-end">Amount</th>
+                                <th class="text-end">Balance</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var transaction in Model.Transactions)
+                            {
+                                <tr>
+                                    <td>
+                                        @transaction.Date.ToString("MM/dd/yyyy")
+                                    </td>
+
+                                    <td>
+                                        @transaction.Description
+                                    </td>
+
+                                    <td>
+                                        @transaction.Account.AccountName
+                                    </td>
+
+                                    <td>
+                                        @transaction.Account.Institution
+                                    </td>
+
+                                    <td>
+                                        @transaction.CreditDebitIndicator
+                                    </td>
+
+                                    <td class="text-end">
+                                        @((transaction.Amount / 100m).ToString("C"))
+                                    </td>
+
+                                    <td class="text-end">
+                                        @if (transaction.AccountBalance.HasValue)
+                                        {
+                                            @((transaction.AccountBalance.Value / 100m).ToString("C"))
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">N/A</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

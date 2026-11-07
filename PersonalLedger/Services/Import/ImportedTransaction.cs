@@ -17,6 +17,9 @@ public class ImportedTransaction
     // Amount in cents.
     public long Amount { get; set; }
 
+    // Optional reward category for credit card.
+    public string? RewardCategory { get; set; }
+
     // Institution-reported balance in cents.
     public long? AccountBalance { get; set; }
 }

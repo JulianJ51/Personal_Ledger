@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using PersonalLedger.Data;
 using PersonalLedger.Services.Import;
 using PersonalLedger.Services.Import.Handlers;
+using PersonalLedger.Services;
+using PersonalLedger.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +19,15 @@ builder.Services.AddSingleton<
     ITransactionImportHandler,
     CapitalOneCheckingSavingsHandler>();
 
+builder.Services.AddSingleton<
+    ITransactionImportHandler,
+    CapitalOneCreditCardHandler>();
+
 builder.Services.AddSingleton<TransactionImportFactory>();
+
+builder.Services.AddScoped<
+    ITransactionQueryService,
+    TransactionQueryService>();
 
 builder.Services.AddHostedService<TransactionImportService>();
 
@@ -40,8 +50,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Transaction}/{action=Index}/{id?}");
 
 
 app.Run();
