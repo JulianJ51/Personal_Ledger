@@ -21,11 +21,11 @@ public class TransactionDetailsViewModel
     public CreditDebitIndicator? CreditDebitIndicator { get; set; }
 
     [Required(ErrorMessage = "Enter an amount.")]
-    [RegularExpression(@"^\\d+\\.\\d{2}$",
+    [RegularExpression(@"^\d+\.\d{2}$",
         ErrorMessage = "Enter an amount with exactly two decimal places (for example, 12.34).")]
     public string? Amount { get; set; }
 
-    [RegularExpression(@"^$|^\\d+\\.\\d{2}$",
+    [RegularExpression(@"^$|^\d+\.\d{2}$",
         ErrorMessage = "Enter an account balance with exactly two decimal places, or leave it blank.")]
     public string? AccountBalance { get; set; }
 
