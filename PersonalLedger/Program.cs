@@ -33,6 +33,8 @@ builder.Services.AddScoped<
     IManualTransactionService,
     ManualTransactionService>();
 
+builder.Services.AddScoped<IAccountService, AccountService>();
+
 builder.Services.AddHostedService<TransactionImportService>();
 
 var app = builder.Build();
