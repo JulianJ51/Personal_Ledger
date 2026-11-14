@@ -10,7 +10,7 @@ namespace PersonalLedger.Services;
 
 public class ManualTransactionService : IManualTransactionService
 {
-    private static readonly Regex AmountPattern = new(@"^\\d+\\.\\d{2}$", RegexOptions.Compiled);
+    private static readonly Regex AmountPattern = new(@"^\d+\.\d{2}$", RegexOptions.Compiled);
     private readonly LedgerDbContext _context;
 
     public ManualTransactionService(LedgerDbContext context) => _context = context;
@@ -31,7 +31,7 @@ public class ManualTransactionService : IManualTransactionService
         var validation = await ValidateAsync(accountId, date, creditDebitIndicator, amount);
         if (validation.Error is not null) return validation.Error;
 
-        var (account, indicator, amountInCents) = validation.Value;
+        var (account, indicator, amountInCents) = validation.Value!.Value;
         var increasesBalance = account.Type == AccountType.CreditCard
             ? indicator == CreditDebitIndicator.Debit
             : indicator == CreditDebitIndicator.Credit;
@@ -77,7 +77,7 @@ public class ManualTransactionService : IManualTransactionService
         var validation = await ValidateAsync(accountId, date, creditDebitIndicator, amount);
         if (validation.Error is not null) return validation.Error;
 
-        var (account, indicator, amountInCents) = validation.Value;
+        var (account, indicator, amountInCents) = validation.Value!.Value;
 
         long? balanceInCents = null;
         if (!string.IsNullOrWhiteSpace(accountBalance))
