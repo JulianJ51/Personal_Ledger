@@ -108,7 +108,7 @@ public class CitiCreditCardHandler : ITransactionImportHandler
             transactions);
     }
 
-    private static long ParseCents(string value, int rowNumber)
+    private static long ParseCents(string value, long rowNumber)
     {
         // Parentheses are formatting only; direction comes from the populated column.
         var normalizedValue = value
