@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using PersonalLedger.Models.DTOs;
 using PersonalLedger.Models.ViewModels;
 using PersonalLedger.Services.Interfaces;
 
@@ -59,9 +60,17 @@ public class TransactionController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Enter(ManualTransactionViewModel viewModel)
     {
-        var result = await _manualTransactionService.CreateAsync(viewModel.AccountId,
-            viewModel.Description, viewModel.Date, viewModel.CreditDebitIndicator?.ToString(),
-            viewModel.Amount, viewModel.RewardCategory);
+        var request = new CreateManualTransactionRequest
+        {
+            AccountId = viewModel.AccountId,
+            Description = viewModel.Description,
+            Date = viewModel.Date,
+            CreditDebitIndicator = viewModel.CreditDebitIndicator?.ToString(),
+            Amount = viewModel.Amount,
+            RewardCategory = viewModel.RewardCategory
+        };
+
+        var result = await _manualTransactionService.CreateAsync(request);
 
         if (!result.Succeeded)
         {
@@ -106,9 +115,18 @@ public class TransactionController : Controller
     {
         viewModel.Id = id;
 
-        var result = await _manualTransactionService.UpdateAsync(id, viewModel.AccountId,
-            viewModel.Description, viewModel.Date, viewModel.CreditDebitIndicator?.ToString(),
-            viewModel.Amount, viewModel.AccountBalance, viewModel.RewardCategory);
+        var request = new UpdateManualTransactionRequest
+        {
+            AccountId = viewModel.AccountId,
+            Description = viewModel.Description,
+            Date = viewModel.Date,
+            CreditDebitIndicator = viewModel.CreditDebitIndicator?.ToString(),
+            Amount = viewModel.Amount,
+            AccountBalance = viewModel.AccountBalance,
+            RewardCategory = viewModel.RewardCategory
+        };
+
+        var result = await _manualTransactionService.UpdateAsync(id, request);
 
         if (!result.Succeeded)
         {

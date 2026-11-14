@@ -58,6 +58,7 @@ public class TransactionImportService : IHostedService
             try
             {
                 await ImportTransactionFile(file, cancellationToken);
+                ArchiveImportedFile(file);
             }
             catch (Exception ex) when (
                 ex is not OperationCanceledException)
@@ -187,6 +188,43 @@ public class TransactionImportService : IHostedService
             fileName,
             importedCount,
             duplicateCount);
+    }
+
+    private void ArchiveImportedFile(string filePath)
+    {
+        var archiveDirectory = Path.Combine(
+            Path.GetDirectoryName(filePath)!,
+            "Archive");
+
+        Directory.CreateDirectory(archiveDirectory);
+
+        var fileName = Path.GetFileName(filePath);
+        var destinationPath = Path.Combine(archiveDirectory, fileName);
+
+        if (File.Exists(destinationPath))
+        {
+            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+            var extension = Path.GetExtension(fileName);
+            var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
+            destinationPath = Path.Combine(
+                archiveDirectory,
+                $"{fileNameWithoutExtension}_{timestamp}{extension}");
+
+            var suffix = 1;
+            while (File.Exists(destinationPath))
+            {
+                destinationPath = Path.Combine(
+                    archiveDirectory,
+                    $"{fileNameWithoutExtension}_{timestamp}_{suffix++}{extension}");
+            }
+        }
+
+        File.Move(filePath, destinationPath);
+
+        _logger.LogInformation(
+            "Archived imported file {FileName} to {ArchivePath}.",
+            fileName,
+            destinationPath);
     }
 
     private static TransactionImportKey CreateTransactionKey(

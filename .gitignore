@@ -1,7 +1,9 @@
+# Import staging and archived transaction exports (any directory named ImportFiles)
+**/ImportFiles/
 
-# Ignore all files in the ImportFiles directory
-ImportFiles/**
-
-# Ignore SQLite database files
+# SQLite database files and journal/sidecar files
 *.db
+*.db-*
 
+# macOS metadata
+.DS_Store
