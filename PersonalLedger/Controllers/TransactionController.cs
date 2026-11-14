@@ -65,8 +65,7 @@ public class TransactionController : Controller
 
         if (!result.Succeeded)
         {
-            AddServiceErrors(result, nameof(viewModel.AccountId), nameof(viewModel.Date),
-                nameof(viewModel.CreditDebitIndicator), nameof(viewModel.Amount));
+            AddServiceErrors(result);
             await PopulateAccountsAsync(viewModel);
             return View(viewModel);
         }
@@ -113,9 +112,8 @@ public class TransactionController : Controller
 
         if (!result.Succeeded)
         {
-            AddServiceErrors(result, nameof(viewModel.AccountId), nameof(viewModel.Date),
-                nameof(viewModel.CreditDebitIndicator), nameof(viewModel.Amount),
-                nameof(viewModel.AccountBalance));
+            if (result.Errors.ContainsKey(string.Empty)) return NotFound();
+            AddServiceErrors(result);
             await PopulateAccountsAsync(viewModel);
             return View(viewModel);
         }
@@ -135,7 +133,7 @@ public class TransactionController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    private void AddServiceErrors(ManualTransactionResult result, params string[] fields)
+    private void AddServiceErrors(ManualTransactionResult result)
     {
         foreach (var error in result.Errors)
         {
