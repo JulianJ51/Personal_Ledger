@@ -110,12 +110,12 @@ public class CitiCreditCardHandler : ITransactionImportHandler
 
     private static long ParseCents(string value, long rowNumber)
     {
-        // Parentheses are formatting only; direction comes from the populated column.
+        // Citi CSV values include spaces between the currency symbol and amount,
+        // and credit values may have a leading negative sign (e.g. " -$ 302.01").
         var normalizedValue = value
             .Replace("$", string.Empty, StringComparison.Ordinal)
-            .Replace("(", string.Empty, StringComparison.Ordinal)
-            .Replace(")", string.Empty, StringComparison.Ordinal)
-            .Trim();
+            .Trim()
+            .Replace(" ", string.Empty, StringComparison.Ordinal);
 
         if (!decimal.TryParse(
             normalizedValue,
@@ -127,10 +127,14 @@ public class CitiCreditCardHandler : ITransactionImportHandler
                 $"Invalid transaction amount on CSV row {rowNumber}: {value}");
         }
 
-        if (amount <= 0)
+        // Keep the stored amount positive. Credit/debit direction is determined
+        // by which CSV column contains the value, not by the sign in the export.
+        amount = Math.Abs(amount);
+
+        if (amount == 0)
         {
             throw new InvalidDataException(
-                $"Transaction amount must be positive on CSV row {rowNumber}.");
+                $"Transaction amount must be nonzero on CSV row {rowNumber}.");
         }
 
         var cents = amount * 100m;
