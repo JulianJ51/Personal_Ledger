@@ -1,4 +1,5 @@
 namespace PersonalLedger.Services.Import;
+using PersonalLedger.Models.DTOs;
 
 public interface ITransactionImportHandler
 {

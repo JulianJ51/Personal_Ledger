@@ -1,6 +1,6 @@
 using PersonalLedger.Models.Enums;
 
-namespace PersonalLedger.Services.Import;
+namespace PersonalLedger.Models.DTOs;
 
 public class ImportedTransaction
 {

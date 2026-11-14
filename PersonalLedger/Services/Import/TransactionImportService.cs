@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PersonalLedger.Data;
 using PersonalLedger.Models;
 using PersonalLedger.Models.Enums;
+using PersonalLedger.Models.DTOs;
 
 namespace PersonalLedger.Services.Import;
 

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PersonalLedger")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+67ee157139661625b3b58977132cdb4cbce17672")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+27a7dd60532dd315e1af8fb2883c3776fe061ea5")]
 [assembly: System.Reflection.AssemblyProductAttribute("PersonalLedger")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PersonalLedger")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

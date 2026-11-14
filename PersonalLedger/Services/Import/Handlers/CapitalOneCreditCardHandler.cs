@@ -2,6 +2,7 @@
 using System.Globalization;
 using CsvHelper;
 using PersonalLedger.Models.Enums;
+using PersonalLedger.Models.DTOs;
 
 namespace PersonalLedger.Services.Import.Handlers;
 
