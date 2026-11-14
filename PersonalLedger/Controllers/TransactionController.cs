@@ -85,6 +85,8 @@ public class TransactionController : Controller
         {
             Id = transaction.Id,
             AccountId = transaction.AccountId,
+            AccountName = transaction.Account.AccountName,
+            Institution = transaction.Account.Institution,
             Description = transaction.Description,
             Date = transaction.Date,
             CreditDebitIndicator = transaction.CreditDebitIndicator,
@@ -103,7 +105,7 @@ public class TransactionController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Details(int id, TransactionDetailsViewModel viewModel)
     {
-        if (id != viewModel.Id) return BadRequest();
+        viewModel.Id = id;
 
         var result = await _manualTransactionService.UpdateAsync(id, viewModel.AccountId,
             viewModel.Description, viewModel.Date, viewModel.CreditDebitIndicator?.ToString(),
