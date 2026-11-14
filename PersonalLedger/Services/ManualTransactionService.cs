@@ -26,10 +26,14 @@ public class ManualTransactionService : IManualTransactionService
             .SingleOrDefaultAsync(transaction => transaction.Id == id);
 
     public async Task<ManualTransactionResult> CreateAsync(
-        int? accountId, string? description, DateOnly? date,
-        string? creditDebitIndicator, string? amount, string? rewardCategory)
+        CreateManualTransactionRequest request)
     {
-        var validation = await ValidateAsync(accountId, date, creditDebitIndicator, amount);
+        var validation = await ValidateAsync(
+            request.AccountId,
+            request.Date,
+            request.CreditDebitIndicator,
+            request.Amount);
+
         if (validation.Error is not null) return validation.Error;
 
         var (account, indicator, amountInCents) = validation.Value!.Value;
@@ -52,12 +56,12 @@ public class ManualTransactionService : IManualTransactionService
         _context.Transactions.Add(new Transaction
         {
             AccountId = account.Id,
-            Description = description ?? string.Empty,
-            Date = date!.Value,
+            Description = request.Description ?? string.Empty,
+            Date = request.Date!.Value,
             CreditDebitIndicator = indicator,
             Amount = amountInCents,
             AccountBalance = account.Balance,
-            RewardCategory = NormalizeCategory(rewardCategory)
+            RewardCategory = NormalizeCategory(request.RewardCategory)
         });
 
         await _context.SaveChangesAsync();
