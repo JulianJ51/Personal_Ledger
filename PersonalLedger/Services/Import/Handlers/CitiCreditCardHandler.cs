@@ -14,7 +14,7 @@ public class CitiCreditCardHandler : ITransactionImportHandler
     {
         return Regex.IsMatch(
             Path.GetFileName(fileName),
-            @"^\\d+.*\\.csv$",
+            @"^\d+.*\.csv$",
             RegexOptions.IgnoreCase);
     }
 
@@ -24,7 +24,7 @@ public class CitiCreditCardHandler : ITransactionImportHandler
         var fileName = Path.GetFileName(filePath);
         var accountMatch = Regex.Match(
             Path.GetFileNameWithoutExtension(fileName),
-            @"^(?<accountNumber>\\d+)");
+            @"^(?<accountNumber>\d+)");
 
         if (!accountMatch.Success)
         {
