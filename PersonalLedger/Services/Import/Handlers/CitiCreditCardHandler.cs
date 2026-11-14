@@ -65,7 +65,7 @@ public class CitiCreditCardHandler : ITransactionImportHandler
 
             if (!DateTime.TryParseExact(
                 dateString,
-                "M/d/yy",
+                new[] { "M/d/yy", "M/d/yyyy" },
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.None,
                 out var parsedDate))
