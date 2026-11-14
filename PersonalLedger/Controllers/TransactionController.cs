@@ -1,18 +1,21 @@
-
 using Microsoft.AspNetCore.Mvc;
-using PersonalLedger.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using PersonalLedger.Models.ViewModels;
+using PersonalLedger.Services.Interfaces;
 
 namespace PersonalLedger.Controllers;
 
 public class TransactionController : Controller
 {
     private readonly ITransactionQueryService _transactionQueryService;
+    private readonly IManualTransactionService _manualTransactionService;
 
     public TransactionController(
-        ITransactionQueryService transactionQueryService)
+        ITransactionQueryService transactionQueryService,
+        IManualTransactionService manualTransactionService)
     {
         _transactionQueryService = transactionQueryService;
+        _manualTransactionService = manualTransactionService;
     }
 
     [HttpGet]
@@ -22,8 +25,7 @@ public class TransactionController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> List(
-        TransactionQueryViewModel query)
+    public async Task<IActionResult> List(TransactionQueryViewModel query)
     {
         if (!ModelState.IsValid)
         {
@@ -43,7 +45,6 @@ public class TransactionController : Controller
             ModelState.AddModelError(
                 nameof(query.EndDate),
                 "The end date must be on or after the start date.");
-
             return View("Index", query);
         }
 
@@ -51,10 +52,8 @@ public class TransactionController : Controller
             await _transactionQueryService.GetTransactionsByDateRangeAsync(
                 query.StartDate.Value,
                 query.EndDate.Value);
-                
 
-        var summary = _transactionQueryService.GetTransactionSummary(
-            transactions);
+        var summary = _transactionQueryService.GetTransactionSummary(transactions);
 
         var viewModel = new TransactionListViewModel
         {
@@ -65,5 +64,66 @@ public class TransactionController : Controller
         };
 
         return View("List", viewModel);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Enter()
+    {
+        var viewModel = new ManualTransactionViewModel
+        {
+            Date = DateOnly.FromDateTime(DateTime.Today)
+        };
+
+        await PopulateAccountsAsync(viewModel);
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Enter(ManualTransactionViewModel viewModel)
+    {
+        var result = await _manualTransactionService.CreateAsync(
+            viewModel.AccountId,
+            viewModel.Description,
+            viewModel.Date,
+            viewModel.CreditDebitIndicator?.ToString(),
+            viewModel.Amount,
+            viewModel.RewardCategory);
+
+        if (!result.Succeeded)
+        {
+            foreach (var error in result.Errors)
+            {
+                var modelField = error.Key switch
+                {
+                    "accountId" => nameof(viewModel.AccountId),
+                    "date" => nameof(viewModel.Date),
+                    "creditDebitIndicator" => nameof(viewModel.CreditDebitIndicator),
+                    "amount" => nameof(viewModel.Amount),
+                    _ => string.Empty
+                };
+
+                ModelState.AddModelError(modelField, error.Value);
+            }
+
+            await PopulateAccountsAsync(viewModel);
+            return View(viewModel);
+        }
+
+        TempData["SuccessMessage"] = "Transaction entered successfully.";
+        return RedirectToAction(nameof(Enter));
+    }
+
+    private async Task PopulateAccountsAsync(ManualTransactionViewModel viewModel)
+    {
+        var accounts = await _manualTransactionService.GetAccountsAsync();
+
+        viewModel.Accounts = accounts
+            .Select(account => new SelectListItem
+            {
+                Value = account.Id.ToString(),
+                Text = account.AccountName
+            })
+            .ToList();
     }
 }
