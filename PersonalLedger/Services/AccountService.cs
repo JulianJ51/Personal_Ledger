@@ -34,8 +34,8 @@ public class AccountService : IAccountService
         if (string.IsNullOrWhiteSpace(accountNumber) || !NumericStringPattern.IsMatch(accountNumber))
             return AccountCreationResult.Failure("accountNumber", "Account number must contain digits only.");
 
-        if (string.IsNullOrWhiteSpace(institution) || !NumericStringPattern.IsMatch(institution))
-            return AccountCreationResult.Failure("institution", "Institution must contain digits only.");
+        if (string.IsNullOrWhiteSpace(institution))
+            return AccountCreationResult.Failure("institution", "Enter an institution.");
 
         if (!TryParseOptionalAmount(balance, out var balanceInCents))
             return AccountCreationResult.Failure("balance", "Enter a valid non-negative amount with up to two decimal places.");
@@ -55,7 +55,7 @@ public class AccountService : IAccountService
             AccountName = accountName.Trim(),
             Type = accountType,
             AccountNumber = accountNumber,
-            Institution = institution,
+            Institution = institution.Trim(),
             Balance = balanceInCents ?? 0,
             AvailableCredit = accountType == AccountType.CreditCard
                 ? availableCreditInCents
