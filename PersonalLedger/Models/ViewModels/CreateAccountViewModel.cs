@@ -18,7 +18,6 @@ public class CreateAccountViewModel
     public string? AccountNumber { get; set; }
 
     [Required(ErrorMessage = "Enter an institution.")]
-    [RegularExpression(@"^\d+$", ErrorMessage = "Institution must contain digits only.")]
     public string? Institution { get; set; }
 
     [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "Enter a valid non-negative amount with up to two decimal places.")]
