@@ -5,35 +5,30 @@ namespace PersonalLedger.Services.Interfaces;
 public interface IManualTransactionService
 {
     Task<IReadOnlyList<Account>> GetAccountsAsync();
+    Task<Transaction?> GetTransactionAsync(int id);
 
     Task<ManualTransactionResult> CreateAsync(
-        int? accountId,
-        string? description,
-        DateOnly? date,
-        string? creditDebitIndicator,
-        string? amount,
-        string? rewardCategory);
+        int? accountId, string? description, DateOnly? date,
+        string? creditDebitIndicator, string? amount, string? rewardCategory);
+
+    Task<ManualTransactionResult> UpdateAsync(
+        int id, int? accountId, string? description, DateOnly? date,
+        string? creditDebitIndicator, string? amount,
+        string? accountBalance, string? rewardCategory);
+
+    Task<bool> DeleteAsync(int id);
 }
 
 public sealed class ManualTransactionResult
 {
     public bool Succeeded { get; init; }
-
     public IReadOnlyDictionary<string, string> Errors { get; init; }
         = new Dictionary<string, string>();
 
-    public static ManualTransactionResult Success() => new()
-    {
-        Succeeded = true
-    };
+    public static ManualTransactionResult Success() => new() { Succeeded = true };
 
-    public static ManualTransactionResult Failure(
-        string field,
-        string message) => new()
+    public static ManualTransactionResult Failure(string field, string message) => new()
     {
-        Errors = new Dictionary<string, string>
-        {
-            [field] = message
-        }
+        Errors = new Dictionary<string, string> { [field] = message }
     };
 }
