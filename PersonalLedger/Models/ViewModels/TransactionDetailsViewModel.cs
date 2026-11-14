@@ -11,6 +11,9 @@ public class TransactionDetailsViewModel
     [Required(ErrorMessage = "Select an account.")]
     public int? AccountId { get; set; }
 
+    public string? AccountName { get; set; }
+    public string? Institution { get; set; }
+
     public IReadOnlyList<SelectListItem> Accounts { get; set; } = Array.Empty<SelectListItem>();
     public string? Description { get; set; }
 
