@@ -11,7 +11,7 @@ namespace PersonalLedger.Services;
 public class ManualTransactionService : IManualTransactionService
 {
     private static readonly Regex AmountPattern = new(
-        @"^\\d+\\.\\d{2}$",
+        @"^\d+\.\d{2}$",
         RegexOptions.Compiled);
 
     private readonly LedgerDbContext _context;
