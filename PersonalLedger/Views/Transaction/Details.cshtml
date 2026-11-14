@@ -21,8 +21,12 @@
                         <div class="alert alert-success" role="alert">@successMessage</div>
                     }
 
+                    @if (!string.IsNullOrWhiteSpace(Model.AccountName))
+                    {
+                        <p class="text-muted mb-3">Currently associated with <strong>@Model.AccountName</strong> at @Model.Institution</p>
+                    }
+
                     <form asp-controller="Transaction" asp-action="Details" asp-route-id="@Model.Id" method="post">
-                        <input asp-for="Id" type="hidden" />
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                         <div class="mb-3">
