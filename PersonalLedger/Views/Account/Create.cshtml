@@ -1,0 +1,97 @@
+@model PersonalLedger.Models.ViewModels.CreateAccountViewModel
+
+@{
+    ViewData["Title"] = "Create Account";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title mb-2">Create Account</h2>
+                    <p class="text-muted mb-4">Add a checking, savings, credit card, or investment account.</p>
+
+                    @if (TempData["SuccessMessage"] is string successMessage)
+                    {
+                        <div class="alert alert-success" role="alert">@successMessage</div>
+                    }
+
+                    <form asp-controller="Account" asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="AccountName" class="form-label">Account Name</label>
+                            <input asp-for="AccountName" class="form-control" autocomplete="off" />
+                            <span asp-validation-for="AccountName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Type" class="form-label">Account Type</label>
+                            <select asp-for="Type" asp-items="Model.AccountTypes" class="form-select" id="accountType">
+                                <option value="">Select an account type</option>
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AccountNumber" class="form-label">Account Number</label>
+                            <input asp-for="AccountNumber" class="form-control" inputmode="numeric" autocomplete="off" />
+                            <span asp-validation-for="AccountNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Institution" class="form-label">Institution</label>
+                            <input asp-for="Institution" class="form-control" autocomplete="off" />
+                            <span asp-validation-for="Institution" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Balance" class="form-label">Current Balance (optional)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="Balance" class="form-control" inputmode="decimal" placeholder="0.00" />
+                            </div>
+                            <div class="form-text">Leave blank to start with a balance of $0.00.</div>
+                            <span asp-validation-for="Balance" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4" id="availableCreditGroup" hidden>
+                            <label asp-for="AvailableCredit" class="form-label">Available Credit (optional)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="AvailableCredit" class="form-control" inputmode="decimal" placeholder="0.00" />
+                            </div>
+                            <span asp-validation-for="AvailableCredit" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">Create Account</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const accountType = document.getElementById("accountType");
+            const availableCreditGroup = document.getElementById("availableCreditGroup");
+            const availableCredit = document.getElementById("AvailableCredit");
+
+            function updateAvailableCreditVisibility() {
+                const isCreditCard = accountType.value === "CreditCard";
+                availableCreditGroup.hidden = !isCreditCard;
+                availableCredit.disabled = !isCreditCard;
+                if (!isCreditCard) availableCredit.value = "";
+            }
+
+            accountType.addEventListener("change", updateAvailableCreditVisibility);
+            updateAvailableCreditVisibility();
+        })();
+    </script>
+}
