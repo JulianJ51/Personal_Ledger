@@ -1,11 +1,5 @@
-using System.Globalization;
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using PersonalLedger.Data;
-using PersonalLedger.Models;
-using PersonalLedger.Models.Enums;
 using PersonalLedger.Models.ViewModels;
 using PersonalLedger.Services.Interfaces;
 
@@ -14,14 +8,14 @@ namespace PersonalLedger.Controllers;
 public class TransactionController : Controller
 {
     private readonly ITransactionQueryService _transactionQueryService;
-    private readonly LedgerDbContext _context;
+    private readonly IManualTransactionService _manualTransactionService;
 
     public TransactionController(
         ITransactionQueryService transactionQueryService,
-        LedgerDbContext context)
+        IManualTransactionService manualTransactionService)
     {
         _transactionQueryService = transactionQueryService;
-        _context = context;
+        _manualTransactionService = manualTransactionService;
     }
 
     [HttpGet]
@@ -88,75 +82,33 @@ public class TransactionController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Enter(ManualTransactionViewModel viewModel)
     {
-        if (!ModelState.IsValid)
+        var result = await _manualTransactionService.CreateAsync(
+            viewModel.AccountId,
+            viewModel.Description,
+            viewModel.Date,
+            viewModel.CreditDebitIndicator?.ToString(),
+            viewModel.Amount,
+            viewModel.RewardCategory);
+
+        if (!result.Succeeded)
         {
+            foreach (var error in result.Errors)
+            {
+                var modelField = error.Key switch
+                {
+                    "accountId" => nameof(viewModel.AccountId),
+                    "date" => nameof(viewModel.Date),
+                    "creditDebitIndicator" => nameof(viewModel.CreditDebitIndicator),
+                    "amount" => nameof(viewModel.Amount),
+                    _ => string.Empty
+                };
+
+                ModelState.AddModelError(modelField, error.Value);
+            }
+
             await PopulateAccountsAsync(viewModel);
             return View(viewModel);
         }
-
-        if (!Enum.IsDefined(viewModel.CreditDebitIndicator!.Value))
-        {
-            ModelState.AddModelError(
-                nameof(viewModel.CreditDebitIndicator),
-                "Select a valid credit or debit indicator.");
-        }
-
-        if (!decimal.TryParse(
-                viewModel.Amount,
-                NumberStyles.AllowDecimalPoint,
-                CultureInfo.InvariantCulture,
-                out var amount) || amount <= 0)
-        {
-            ModelState.AddModelError(
-                nameof(viewModel.Amount),
-                "Enter an amount greater than zero with exactly two decimal places.");
-        }
-
-        if (!ModelState.IsValid)
-        {
-            await PopulateAccountsAsync(viewModel);
-            return View(viewModel);
-        }
-
-        var amountInCents = checked((long)(amount * 100m));
-        var account = await _context.Accounts
-            .SingleOrDefaultAsync(a => a.Id == viewModel.AccountId);
-
-        if (account is null)
-        {
-            ModelState.AddModelError(
-                nameof(viewModel.AccountId),
-                "The selected account could not be found.");
-            await PopulateAccountsAsync(viewModel);
-            return View(viewModel);
-        }
-
-        var isCreditCard = account.Type == AccountType.CreditCard;
-        var increasesBalance =
-            isCreditCard
-                ? viewModel.CreditDebitIndicator == CreditDebitIndicator.Debit
-                : viewModel.CreditDebitIndicator == CreditDebitIndicator.Credit;
-
-        account.Balance = checked(
-            increasesBalance
-                ? account.Balance + amountInCents
-                : account.Balance - amountInCents);
-
-        var transaction = new Transaction
-        {
-            AccountId = account.Id,
-            Description = viewModel.Description ?? string.Empty,
-            Date = viewModel.Date!.Value,
-            CreditDebitIndicator = viewModel.CreditDebitIndicator.Value,
-            Amount = amountInCents,
-            AccountBalance = account.Balance,
-            RewardCategory = string.IsNullOrWhiteSpace(viewModel.RewardCategory)
-                ? null
-                : viewModel.RewardCategory.Trim()
-        };
-
-        _context.Transactions.Add(transaction);
-        await _context.SaveChangesAsync();
 
         TempData["SuccessMessage"] = "Transaction entered successfully.";
         return RedirectToAction(nameof(Enter));
@@ -164,14 +116,14 @@ public class TransactionController : Controller
 
     private async Task PopulateAccountsAsync(ManualTransactionViewModel viewModel)
     {
-        viewModel.Accounts = await _context.Accounts
-            .AsNoTracking()
-            .OrderBy(a => a.AccountName)
-            .Select(a => new SelectListItem
+        var accounts = await _manualTransactionService.GetAccountsAsync();
+
+        viewModel.Accounts = accounts
+            .Select(account => new SelectListItem
             {
-                Value = a.Id.ToString(),
-                Text = a.AccountName
+                Value = account.Id.ToString(),
+                Text = account.AccountName
             })
-            .ToListAsync();
+            .ToList();
     }
 }
