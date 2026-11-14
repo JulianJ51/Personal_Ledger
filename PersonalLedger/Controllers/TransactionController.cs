@@ -1,7 +1,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using PersonalLedger.Services.Interfaces;
-using PersonalLedger.ViewModels;
+using PersonalLedger.Models.ViewModels;
 
 namespace PersonalLedger.Controllers;
 
@@ -30,22 +30,11 @@ public class TransactionController : Controller
             return View("Index", query);
         }
 
-        if (!query.StartDate.HasValue)
-        {
-            ModelState.AddModelError(
-                nameof(query.StartDate),
-                "A start date is required.");
-        }
-
-        if (!query.EndDate.HasValue)
-        {
-            ModelState.AddModelError(
-                nameof(query.EndDate),
-                "An end date is required.");
-        }
-
         if (!query.StartDate.HasValue || !query.EndDate.HasValue)
         {
+            ModelState.AddModelError(
+                string.Empty,
+                "Both a start date and an end date are required.");
             return View("Index", query);
         }
 
@@ -62,12 +51,17 @@ public class TransactionController : Controller
             await _transactionQueryService.GetTransactionsByDateRangeAsync(
                 query.StartDate.Value,
                 query.EndDate.Value);
+                
+
+        var summary = _transactionQueryService.GetTransactionSummary(
+            transactions);
 
         var viewModel = new TransactionListViewModel
         {
             StartDate = query.StartDate.Value,
             EndDate = query.EndDate.Value,
-            Transactions = transactions
+            Transactions = transactions,
+            Summary = summary
         };
 
         return View("List", viewModel);

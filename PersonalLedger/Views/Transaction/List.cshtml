@@ -1,5 +1,5 @@
 
-@model PersonalLedger.ViewModels.TransactionListViewModel
+@model PersonalLedger.Models.ViewModels.TransactionListViewModel
 
 @{
     ViewData["Title"] = "Transactions";
@@ -23,6 +23,75 @@
             New Search
         </a>
     </div>
+
+    <div class="row g-3 mb-4">
+
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="text-muted">Total Credits</h6>
+
+                <h3 class="text-success mb-0">
+                    @((Model.Summary.TotalCredits / 100m).ToString("C"))
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="text-muted">Total Debits</h6>
+
+                <h3 class="text-danger mb-0">
+                    @((Model.Summary.TotalDebits / 100m).ToString("C"))
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+            <h5 class="mb-3">Credit Card Spending by Reward Category</h5>
+
+            @if (Model.Summary.RewardCategoryBreakdown.Count == 0)
+            {
+                <p class="text-muted mb-0">
+                    No reward category data is available for these transactions.
+                </p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Reward Category</th>
+                                <th class="text-end">Total Spend</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var category in Model.Summary.RewardCategoryBreakdown)
+                            {
+                                <tr>
+                                    <td>@category.RewardCategory</td>
+
+                                    <td class="text-end">
+                                        @((category.TotalSpend / 100m).ToString("C"))
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
+
+</div>
 
     <div class="card shadow-sm">
         <div class="card-body">
@@ -52,7 +121,7 @@
                                 <th>Institution</th>
                                 <th>Type</th>
                                 <th class="text-end">Amount</th>
-                                <th class="text-end">Balance</th>
+                                <th class="text-end">Category</th>
                             </tr>
                         </thead>
 
@@ -85,9 +154,9 @@
                                     </td>
 
                                     <td class="text-end">
-                                        @if (transaction.AccountBalance.HasValue)
+                                        @if (transaction.RewardCategory != null)
                                         {
-                                            @((transaction.AccountBalance.Value / 100m).ToString("C"))
+                                            @transaction.RewardCategory
                                         }
                                         else
                                         {

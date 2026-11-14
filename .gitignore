@@ -1,0 +1,7 @@
+
+# Ignore all files in the ImportFiles directory
+ImportFiles/**
+
+# Ignore SQLite database files
+*.db
+

@@ -1,4 +1,4 @@
-namespace PersonalLedger.ViewModels;
+namespace PersonalLedger.Models.ViewModels;
 
 public class TransactionQueryViewModel
 {
