@@ -1,4 +1,5 @@
 using PersonalLedger.Models;
+using PersonalLedger.Models.DTOs;
 
 namespace PersonalLedger.Services.Interfaces;
 
@@ -12,9 +13,7 @@ public interface IManualTransactionService
         string? creditDebitIndicator, string? amount, string? rewardCategory);
 
     Task<ManualTransactionResult> UpdateAsync(
-        int id, int? accountId, string? description, DateOnly? date,
-        string? creditDebitIndicator, string? amount,
-        string? accountBalance, string? rewardCategory);
+        int id, UpdateManualTransactionRequest request);
 
     Task<bool> DeleteAsync(int id);
 }
