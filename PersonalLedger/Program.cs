@@ -29,6 +29,10 @@ builder.Services.AddScoped<
     ITransactionQueryService,
     TransactionQueryService>();
 
+builder.Services.AddScoped<
+    IManualTransactionService,
+    ManualTransactionService>();
+
 builder.Services.AddHostedService<TransactionImportService>();
 
 var app = builder.Build();
