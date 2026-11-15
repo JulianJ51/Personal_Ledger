@@ -23,6 +23,10 @@ builder.Services.AddSingleton<
     ITransactionImportHandler,
     CapitalOneCreditCardHandler>();
 
+builder.Services.AddSingleton<
+    ITransactionImportHandler,
+    CitiCreditCardHandler>();
+
 builder.Services.AddSingleton<TransactionImportFactory>();
 
 builder.Services.AddScoped<
